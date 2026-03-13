@@ -30,6 +30,13 @@
 
 Slopdetector is a browser extension that helps you identify AI-generated content ("slop") on social media. It adds a scan button to posts and comments, sends the text to an LLM of your choice for analysis, and shows you a confidence score indicating how likely the content is to be AI-generated.
 
+## How It Works
+
+1. Slopdetector inserts scan buttons <img src="icons/icon16.png" width="16" height="16"> next to posts on [supported social media pages](#supported-platforms).
+2. When you click a scan button, the text of the post is extracted and sent to an [AI service provider of your choice](#ai-provider-support) for analysis.
+3. An AI model examines the text for linguistic patterns that can help determine if it was written by a human or an AI.
+4. You receive a final report with the findings, including signals which explain why that was the verdict.
+
 ## Screenshots
 
 <p align="center">
@@ -49,6 +56,15 @@ Slopdetector is a browser extension that helps you identify AI-generated content
   <em>Left: LinkedIn post flagged as "Likely human". Right: Reddit post flagged as "Very likely AI-generated" — both showing "Detailed Reasoning" signals.</em>
 </p>
 
+## AI Provider Support
+
+| Provider | Status | Notes |
+|----------|--------|-------|
+| **[LM Studio](https://lmstudio.ai/)** | ✅ Supported | Fully local, offline analysis with no data leaving your machine |
+| **[Anthropic API (Claude Models)](https://console.anthropic.com/)** | ✅ Supported | Cloud API |
+| **[OpenAI API (ChatGPT Models)](https://platform.openai.com/)** | ✅ Supported | Cloud API |
+| **[OpenRouter API](https://openrouter.ai/)** | ✅ Supported | Access to 100+ models through a single API |
+
 ## Supported Platforms
 
 | Platform | Status | Notes |
@@ -57,27 +73,13 @@ Slopdetector is a browser extension that helps you identify AI-generated content
 | **LinkedIn** | ✅ Supported | Feed posts including suggested and sponsored content |
 | X / Twitter | 🔜 Coming soon! | — |
 
-More platforms will be added based on popular demand. Feel free to [submit a request.](https://github.com/webs7er/Slopdetector/issues/new).
+More platforms will be added based on popular demand. Feel free to [submit a request](https://github.com/webs7er/Slopdetector/issues/new).
 
 ## Browser Compatibility
-
-| Browser | Status |
-|---------|--------|
-| **Google Chrome** | ✅ Supported |
-| **Microsoft Edge** | ✅ Compatible (Chromium-based) |
-| **Brave** | ✅ Compatible (Chromium-based) |
-| **Opera** | ✅ Compatible (Chromium-based) |
-| **Firefox** | ❌ Not supported (Manifest V3) |
-
-## Features
-
-- <img src="icons/icon16.png" width="16" height="16"> **On-demand scanning** — Click the scan button on any post to analyze it
-- 🤖 **Multi-provider support** — Use LM Studio (Local), Anthropic API (Claude), OpenAI API (ChatGPT), or OpenRouter API
-- 🎯 **Adjustable sensitivity** — Drag-to-resize zone bar for fine-tuning detection thresholds
-- 📊 **Scan statistics** — Track your scans over time with daily, weekly, monthly, and all-time breakdowns by platform
-- 💬 **Detailed reasoning** — See human vs. AI signals explaining why content was flagged
-- 🧪 **Customizable prompts** — Override the system prompt and output format for advanced use
-- 🔒 **Privacy-friendly** — Use LM Studio for fully local, offline analysis with no data leaving your machine
+| |
+| ----- |
+| ✅ **Chrome, Edge, Brave, Opera** (Chromium-based browsers)  |
+| ❌ **Firefox** (Manifest V3) |
 
 ## Installation
 
@@ -85,7 +87,8 @@ More platforms will be added based on popular demand. Feel free to [submit a req
 
 [Install Slopdetector from the Chrome Web Store](https://chromewebstore.google.com/detail/klddclokoaiflemooohmomoljkpcjalf?utm_source=item-share-cb)
 
-### Manual Installation (Developer Mode)
+<details>
+<summary><strong>Alternative: Manual Installation (For Developers)</strong></summary>
 
 1. **Download** — Clone or download this repository:
    ```bash
@@ -96,18 +99,30 @@ More platforms will be added based on popular demand. Feel free to [submit a req
 4. **Load the extension** — Click **"Load unpacked"** and select the project folder
 5. **Pin it** — Click the puzzle-piece icon in the toolbar and pin **Slopdetector** for easy access
 
+</details>
+
 ## Getting Started
 
 ### 1. Choose an AI Provider
 
-Click the Slopdetector icon in your toolbar to open settings. Select one of the supported providers:
+To analyze posts, Slopdetector requires access to an AI model. You have two options: use a **local model** via LM Studio (free, private, but requires decent hardware) or use a **cloud provider** (OpenAI, Anthropic, OpenRouter) which requires an API key.
 
-| Provider | Type | Requirements |
-|----------|------|--------------|
-| **LM Studio** | Local | [Download LM Studio](https://lmstudio.ai/), load a model, and start the local server (default: `http://localhost:1234`) |
-| **OpenAI** | Cloud | Requires an [API key](https://platform.openai.com/api-keys) |
-| **Anthropic (Claude)** | Cloud | Requires an [API key](https://console.anthropic.com/settings/keys) |
-| **OpenRouter** | Cloud | Requires an [API key](https://openrouter.ai/keys) — access to 100+ models through a single API |
+#### Using a Cloud Provider (API Key required)
+
+An API key is a secure token that allows Slopdetector to communicate with your chosen AI provider's servers on your behalf. Since cloud models cost a fraction of a cent per request to run, the key links these requests to your account. Your keys are stored locally on your device and are never shared with us.
+
+1. **Create an account** — Sign up at the developer platform of your chosen provider ([OpenAI](https://platform.openai.com/), [Anthropic](https://console.anthropic.com/), or [OpenRouter](https://openrouter.ai/)).
+2. **Add credits** — You generally need to add a few dollars to your account balance to activate API usage.
+3. **Generate the key** — Navigate to the "API Keys" section in the provider's dashboard and click "Create new secret key".
+4. **Copy the key** — It will look like a long, random string of characters (e.g., `sk-proj...` or `sk-ant...`). *Keep this secret, do not share it!*
+5. **Configure Slopdetector** — Click the extension icon in your browser toolbar, select the corresponding provider from the "Model Selection" dropdown, and paste your API key into the input field. The extension will save it automatically.
+
+#### Using LM Studio (Local, Free)
+
+1. **Install** — [Download and install LM Studio](https://lmstudio.ai/).
+2. **Download a model** — Search for and download a small, capable model within the app (e.g., a 7B or 8B parameter model like Llama 3 or Qwen).
+3. **Start the server** — Navigate to the "Local Server" tab in LM Studio and click **Start Server**.
+4. **Configure Slopdetector** — Open the extension, choose **LM Studio (Local)**, and ensure the URL matches the LM Studio server (the default `http://localhost:1234` is usually correct).
 
 ### 2. Scan a Post
 
@@ -127,6 +142,8 @@ Click the Slopdetector icon in your toolbar to open settings. Select one of the 
 
 ### 3. Customize Your Settings
 
+Slopdetector offers several options to tailor the content analysis and interface to your preferences. Open the extension popup to tweak these configurations:
+
 - **Show Certainty %** — Display the raw confidence score
 - **Detailed Reasoning** — Show human and AI signals explaining the verdict
 - **Minimum Post Length** — Skip short posts below a word count threshold
@@ -139,24 +156,7 @@ Under the expandable **Experimental Features** section you can:
 - Edit the **system prompt** and **output format** for custom analysis behavior
 - Fine-tune the **AI-content score sensitivity** zones with a visual drag-to-resize bar
 
-## AI Providers
 
-| Provider | Type | Details |
-|----------|------|---------|
-| **LM Studio (Local)** | Local | Run models entirely on your machine — no data leaves your computer. [Download LM Studio](https://lmstudio.ai/), load a model, and start the local server (default: `http://localhost:1234`) |
-| **Anthropic API (Claude)** | Cloud | Requires an [API key](https://console.anthropic.com/settings/keys) from Anthropic |
-| **OpenAI API (ChatGPT)** | Cloud | Requires an [API key](https://platform.openai.com/api-keys) from OpenAI |
-| **OpenRouter API** | Cloud | Requires an [API key](https://openrouter.ai/keys) — access to 100+ models through a single API |
-
-## How It Works
-
-1. Slopdetector injects scan buttons into supported social media pages
-2. When you click a scan button, the post text is extracted and sent to your configured LLM provider
-3. The LLM analyzes linguistic patterns — formality, hedging phrases, sentence variety, personal anecdotes, emotional depth, and more
-4. The result comes back as a structured JSON with a probability score and reasoning
-5. A color-coded indicator replaces the scan button, showing the verdict at a glance
-
-Results are cached per post so re-scanning is instant.
 
 ## Privacy
 
@@ -190,13 +190,15 @@ Results are cached per post so re-scanning is instant.
 - Cloud providers may have rate limits — wait a moment and try again
 - For LM Studio, try a smaller/faster model
 - Increase the **minimum post length** filter to reduce the number of API calls
-- If the error persists, [submit an issue.](https://github.com/webs7er/Slopdetector/issues/new).
+- If the error persists, [submit an issue.](https://github.com/webs7er/Slopdetector/issues/).
 
 </details>
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests.
+Contributions are welcome! Feel free to [open an issue](https://github.com/webs7er/Slopdetector/issues/) or [start a discussion](https://github.com/webs7er/Slopdetector/discussions). 
+
+Alternatively, you can also [submit a pull request](https://github.com/webs7er/Slopdetector/pulls/):
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/my-feature`)
