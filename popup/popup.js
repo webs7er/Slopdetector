@@ -49,9 +49,14 @@ class PopupManager {
       openrouterApiKey: document.getElementById('openrouterApiKey'),
       openrouterKeyDisplay: document.getElementById('openrouterKeyDisplay'),
       openrouterSettings: document.getElementById('openrouterSettings'),
+      geminiApiKey: document.getElementById('geminiApiKey'),
+      geminiKeyDisplay: document.getElementById('geminiKeyDisplay'),
+      geminiSettings: document.getElementById('geminiSettings'),
       openaiModel: document.getElementById('openaiModel'),
       claudeModel: document.getElementById('claudeModel'),
       openrouterModel: document.getElementById('openrouterModel'),
+      geminiModel: document.getElementById('geminiModel'),
+      lmStudioModel: document.getElementById('lmStudioModel'),
       lmStudioModel: document.getElementById('lmStudioModel'),
       customCorePrompt: document.getElementById('customCorePrompt'),
       customOutputFormat: document.getElementById('customOutputFormat'),
@@ -123,9 +128,12 @@ class PopupManager {
     this.updateApiKeyDisplay('claude', this.settings.claudeApiKey);
     this.elements.openrouterApiKey.value = this.settings.openrouterApiKey || '';
     this.updateApiKeyDisplay('openrouter', this.settings.openrouterApiKey);
+    this.elements.geminiApiKey.value = this.settings.geminiApiKey || '';
+    this.updateApiKeyDisplay('gemini', this.settings.geminiApiKey);
     this.elements.openaiModel.value = this.settings.openaiModel || 'gpt-3.5-turbo';
     this.elements.claudeModel.value = this.settings.claudeModel || 'claude-sonnet-4-5';
     this.elements.openrouterModel.value = this.settings.openrouterModel || 'openai/gpt-3.5-turbo';
+    this.elements.geminiModel.value = this.settings.geminiModel || 'gemini-2.5-flash';
     this.elements.lmStudioModel.value = this.settings.lmStudioModel || '';
 
     // Load prompts or defaults
@@ -164,6 +172,7 @@ class PopupManager {
     this.elements.openaiSettings.style.display = provider === 'openai' ? 'block' : 'none';
     this.elements.claudeSettings.style.display = provider === 'claude' ? 'block' : 'none';
     this.elements.openrouterSettings.style.display = provider === 'openrouter' ? 'block' : 'none';
+    this.elements.geminiSettings.style.display = provider === 'gemini' ? 'block' : 'none';
   }
 
   updateApiKeyDisplay(provider, key) {
@@ -171,12 +180,16 @@ class PopupManager {
       ? this.elements.openaiKeyDisplay
       : provider === 'claude'
         ? this.elements.claudeKeyDisplay
-        : this.elements.openrouterKeyDisplay;
+        : provider === 'gemini'
+          ? this.elements.geminiKeyDisplay
+          : this.elements.openrouterKeyDisplay;
     const inputElement = provider === 'openai'
       ? this.elements.openaiApiKey
       : provider === 'claude'
         ? this.elements.claudeApiKey
-        : this.elements.openrouterApiKey;
+        : provider === 'gemini'
+          ? this.elements.geminiApiKey
+          : this.elements.openrouterApiKey;
 
     if (!displayElement) return;
 
@@ -317,6 +330,18 @@ class PopupManager {
       this.updateModelList('claude');
     });
 
+    this.elements.geminiApiKey.addEventListener('input', (e) => {
+      this.settings.geminiApiKey = e.target.value;
+      debouncedSave();
+    });
+
+    this.elements.geminiApiKey.addEventListener('blur', (e) => {
+      this.settings.geminiApiKey = e.target.value.trim();
+      this.updateApiKeyDisplay('gemini', this.settings.geminiApiKey);
+      this.saveSettings();
+      this.updateModelList('gemini');
+    });
+
     // Model inputs
     this.elements.openaiModel.addEventListener('change', (e) => {
       this.settings.openaiModel = e.target.value;
@@ -325,6 +350,11 @@ class PopupManager {
 
     this.elements.claudeModel.addEventListener('change', (e) => {
       this.settings.claudeModel = e.target.value;
+      this.saveSettings();
+    });
+
+    this.elements.geminiModel.addEventListener('change', (e) => {
+      this.settings.geminiModel = e.target.value;
       this.saveSettings();
     });
 
@@ -424,6 +454,12 @@ class PopupManager {
       this.elements.openrouterKeyDisplay.style.display = 'none';
       this.elements.openrouterApiKey.style.display = 'block';
       this.elements.openrouterApiKey.focus();
+    });
+
+    this.elements.geminiKeyDisplay?.addEventListener('click', () => {
+      this.elements.geminiKeyDisplay.style.display = 'none';
+      this.elements.geminiApiKey.style.display = 'block';
+      this.elements.geminiApiKey.focus();
     });
 
     this.elements.enableMinLength.addEventListener('change', (e) => {
@@ -627,14 +663,16 @@ class PopupManager {
     const preservedKeys = {
       openaiApiKey: this.settings.openaiApiKey,
       claudeApiKey: this.settings.claudeApiKey,
-      openrouterApiKey: this.settings.openrouterApiKey
+      openrouterApiKey: this.settings.openrouterApiKey,
+      geminiApiKey: this.settings.geminiApiKey
     };
 
     this.settings = {
       ...StopTheSlopConfig.DEFAULT_SETTINGS,
       openaiApiKey: preservedKeys.openaiApiKey,
       claudeApiKey: preservedKeys.claudeApiKey,
-      openrouterApiKey: preservedKeys.openrouterApiKey
+      openrouterApiKey: preservedKeys.openrouterApiKey,
+      geminiApiKey: preservedKeys.geminiApiKey
     };
     await this.saveSettings();
     this.applySettingsToUI();
@@ -668,6 +706,7 @@ class PopupManager {
     this.settings.openaiApiKey = '';
     this.settings.claudeApiKey = '';
     this.settings.openrouterApiKey = '';
+    this.settings.geminiApiKey = '';
     await this.saveSettings();
     this.applySettingsToUI();
     this.showToast('API keys removed.', 'success');
@@ -935,7 +974,9 @@ class PopupManager {
     // OpenRouter uses free text input, no model fetching needed
     if (!provider || provider === 'lmstudio' || provider === 'openrouter') return;
 
-    const selectId = provider === 'openai' ? 'openaiModel' : 'claudeModel';
+    const selectId = provider === 'openai' ? 'openaiModel' : 
+                     provider === 'claude' ? 'claudeModel' : 
+                     provider === 'gemini' ? 'geminiModel' : 'openaiModel';
     const selectEl = this.elements[selectId];
     if (!selectEl) return;
 
@@ -956,7 +997,8 @@ class PopupManager {
       if (response && response.models && response.models.length > 0) {
         const currentModel = provider === 'openai'
           ? this.settings.openaiModel
-          : this.settings.claudeModel;
+          : provider === 'claude' ? this.settings.claudeModel
+          : this.settings.geminiModel;
 
         let foundCurrent = false;
 
@@ -988,6 +1030,7 @@ class PopupManager {
           // Immediately update settings to the valid model
           if (provider === 'openai') this.settings.openaiModel = selectEl.value;
           if (provider === 'claude') this.settings.claudeModel = selectEl.value;
+          if (provider === 'gemini') this.settings.geminiModel = selectEl.value;
           // Note: openrouter not included as it uses free text input
           this.saveSettings();
         }

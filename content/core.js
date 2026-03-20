@@ -45,6 +45,7 @@ class BaseAIDetector {
         const oldClaudeModel = this.settings.claudeModel;
         const oldLmStudioModel = this.settings.lmStudioModel;
         const oldOpenrouterModel = this.settings.openrouterModel;
+        const oldGeminiModel = this.settings.geminiModel;
         this.settings = { ...this.settings, ...changes.settings.newValue };
 
         // Handle extension being disabled
@@ -77,7 +78,8 @@ class BaseAIDetector {
           this.settings.openaiModel !== oldOpenaiModel ||
           this.settings.claudeModel !== oldClaudeModel ||
           this.settings.lmStudioModel !== oldLmStudioModel ||
-          this.settings.openrouterModel !== oldOpenrouterModel) {
+          this.settings.openrouterModel !== oldOpenrouterModel ||
+          this.settings.geminiModel !== oldGeminiModel) {
           this.refreshAllTooltips();
         }
       }
@@ -219,6 +221,14 @@ class BaseAIDetector {
       modelName = modelName.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
       // Fix "Claude" capitalization explicitly just in case
       modelName = modelName.replace(/claude/i, 'Claude').replace(/gpt/i, 'GPT');
+    } else if (provider === 'gemini') {
+      modelName = this.settings.geminiModel || 'Gemini Model';
+      modelName = modelName
+        .replace(/-/g, ' ')
+        .replace(/\bgemini\b/i, 'Gemini')
+        .replace(/\bflash\b/i, 'Flash')
+        .replace(/\bpro\b/i, 'Pro');
+      modelName = modelName.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
     } else if (provider === 'openrouter') {
       modelName = this.settings.openrouterModel || 'OpenRouter Model';
     } else if (provider === 'lmstudio') {

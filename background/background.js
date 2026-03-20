@@ -108,6 +108,8 @@ class BackgroundService {
                 models = await this.getClaudeModels();
               } else if (provider === 'openrouter') {
                 models = await this.getOpenRouterModels();
+              } else if (provider === 'gemini') {
+                models = await this.getGeminiModels();
               } else {
                 models = await this.getLMStudioModels();
               }
@@ -298,6 +300,33 @@ class BackgroundService {
     }
   }
 
+  async getGeminiModels() {
+    await this.loadSettings();
+    if (!this.settings.geminiApiKey) return [];
+
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${this.settings.geminiApiKey}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        // Filter models that support generateContent and contain "gemini"
+        const models = (data.models || [])
+          .filter(model => model.name.includes('gemini') && (model.supportedGenerationMethods || []).includes('generateContent'))
+          .map(model => ({
+            id: model.name.replace('models/', ''),
+            display_name: model.displayName || model.name.replace('models/', '')
+          }));
+        
+        return models;
+      }
+      console.error('StopTheSlop: Failed to fetch Gemini models:', response.status);
+      return [];
+    } catch (error) {
+      console.error('StopTheSlop: Error fetching Gemini models:', error);
+      return [];
+    }
+  }
+
   async analyzeText(text, platform = 'Social Media') {
     // Reload settings to ensure we have the latest provider selection
     await this.loadSettings();
@@ -311,6 +340,15 @@ class BackgroundService {
     if (this.settings.modelProvider === 'openai') {
       result = await this.analyzeWithOpenAI(text, platform);
       modelName = this.settings.openaiModel || 'GPT-3.5 Turbo';
+    } else if (this.settings.modelProvider === 'gemini') {
+      result = await this.analyzeWithGemini(text, platform);
+      modelName = this.settings.geminiModel || 'Gemini Model';
+      modelName = modelName
+        .replace(/-/g, ' ')
+        .replace(/\bgemini\b/i, 'Gemini')
+        .replace(/\bflash\b/i, 'Flash')
+        .replace(/\bpro\b/i, 'Pro');
+      modelName = modelName.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
     } else if (this.settings.modelProvider === 'claude') {
       result = await this.analyzeWithClaude(text, platform);
       // Format Claude model name nicely
@@ -525,6 +563,63 @@ class BackgroundService {
       return this.parseAnalysisResponse(content);
     } catch (error) {
       console.error('StopTheSlop: OpenRouter analysis error:', error);
+      throw error;
+    }
+  }
+
+  async analyzeWithGemini(text, platform) {
+    await this.loadSettings();
+
+    if (!this.settings.geminiApiKey) {
+      throw new Error('Gemini API key not configured');
+    }
+
+    try {
+      const model = this.settings.geminiModel || 'gemini-2.5-flash';
+      // Add 'models/' prefix if not present
+      const modelId = model.startsWith('models/') ? model : `models/${model}`;
+      
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/${modelId}:generateContent?key=${this.settings.geminiApiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: this.getSystemPrompt() }]
+          },
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `Analyze this ${platform} content for authenticity:\n\n${text}` }]
+            }
+          ],
+          generationConfig: {
+            temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 400 && errorData.error?.message?.includes('API key not valid')) {
+          throw new Error('Invalid Gemini API key. Please check your API key.');
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please try again later.');
+        } else if (response.status === 400) {
+          throw new Error(`Bad request: ${errorData.error?.message || 'Unknown error'}`);
+        }
+        throw new Error(`Gemini API error (${response.status}): ${errorData.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      console.log('StopTheSlop: Gemini response:', content.substring(0, 200));
+
+      return this.parseAnalysisResponse(content);
+    } catch (error) {
+      console.error('StopTheSlop: Gemini analysis error:', error);
       throw error;
     }
   }

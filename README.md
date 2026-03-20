@@ -63,6 +63,7 @@ Slopdetector is a browser extension that helps you identify AI-generated content
 | **[LM Studio](https://lmstudio.ai/)** | ✅ Supported | Fully local, offline analysis with no data leaving your machine |
 | **[Anthropic API (Claude Models)](https://console.anthropic.com/)** | ✅ Supported | Cloud API |
 | **[OpenAI API (ChatGPT Models)](https://platform.openai.com/)** | ✅ Supported | Cloud API |
+| **[Google Gemini API](https://aistudio.google.com/)** | ✅ Supported | Cloud API |
 | **[OpenRouter API](https://openrouter.ai/)** | ✅ Supported | Access to 100+ models through a single API |
 
 ## Supported Platforms
@@ -105,13 +106,13 @@ More platforms will be added based on popular demand. Feel free to [submit a req
 
 ### 1. Choose an AI Provider
 
-To analyze posts, Slopdetector requires access to an AI model. You have two options: use a **local model** via LM Studio (free, private, but requires decent hardware) or use a **cloud provider** (OpenAI, Anthropic, OpenRouter) which requires an API key.
+To analyze posts, Slopdetector requires access to an AI model. You have two options: use a **local model** via LM Studio (free, private, but requires decent hardware) or use a **cloud provider** (OpenAI, Anthropic, OpenRouter, Google Gemini) which requires an API key.
 
 #### Using a Cloud Provider (API Key required)
 
 An API key is a secure token that allows Slopdetector to communicate with your chosen AI provider's servers on your behalf. Since cloud models cost a fraction of a cent per request to run, the key links these requests to your account. Your keys are stored locally on your device and are never shared with us.
 
-1. **Create an account** — Sign up at the developer platform of your chosen provider ([OpenAI](https://platform.openai.com/), [Anthropic](https://console.anthropic.com/), or [OpenRouter](https://openrouter.ai/)).
+1. **Create an account** — Sign up at the developer platform of your chosen provider ([Google AI Studio](https://aistudio.google.com/), [OpenAI](https://platform.openai.com/), [Anthropic](https://console.anthropic.com/), or [OpenRouter](https://openrouter.ai/)).
 2. **Add credits** — You generally need to add a few dollars to your account balance to activate API usage.
 3. **Generate the key** — Navigate to the "API Keys" section in the provider's dashboard and click "Create new secret key".
 4. **Copy the key** — It will look like a long, random string of characters (e.g., `sk-proj...` or `sk-ant...`). *Keep this secret, do not share it!*
@@ -161,7 +162,7 @@ Under the expandable **Experimental Features** section you can:
 ## Privacy
 
 - **LM Studio** runs entirely on your machine — no data leaves your computer.
-- **Cloud providers** (OpenAI, Claude, OpenRouter) send post text to their APIs for analysis. Your API keys are stored locally in Chrome's extension storage and are never shared.
+- **Cloud providers** (OpenAI, Claude, OpenRouter, Gemini) send post text to their APIs for analysis. Your API keys are stored locally in Chrome's extension storage and are never shared.
 - Slopdetector does **not** collect, store, or transmit any browsing data or analytics.
 
 ## Troubleshooting

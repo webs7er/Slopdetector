@@ -32,6 +32,8 @@ const DEFAULT_SETTINGS = {
   claudeModel: '',
   openrouterModel: '',
   lmStudioModel: '',
+  geminiApiKey: '',
+  geminiModel: '',
 
   // Custom Prompt Settings (empty string = use default)
   customCorePrompt: '',
