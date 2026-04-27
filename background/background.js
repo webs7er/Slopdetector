@@ -413,7 +413,7 @@ class BackgroundService {
             }
           ],
           temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3,
-          max_tokens: 500
+          max_tokens: this.settings.maxTokens || 5000
         })
       });
 
@@ -464,7 +464,7 @@ class BackgroundService {
         },
         body: JSON.stringify({
           model: this.settings.claudeModel || 'claude-sonnet-4-5',
-          max_tokens: 1024,
+          max_tokens: this.settings.maxTokens || 5000,
           temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3,
           temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3,
           system: this.getSystemPrompt(),
@@ -542,7 +542,8 @@ class BackgroundService {
               content: `Analyze this ${platform} content for authenticity:\n\n${text}`
             }
           ],
-          temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3
+          temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3,
+          max_tokens: this.settings.maxTokens || 5000
         })
       });
 
@@ -599,7 +600,8 @@ class BackgroundService {
             }
           ],
           generationConfig: {
-            temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3
+            temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3,
+            maxOutputTokens: this.settings.maxTokens || 5000
           }
         })
       });
@@ -651,7 +653,7 @@ class BackgroundService {
             }
           ],
           temperature: this.settings.temperature !== undefined ? this.settings.temperature : 0.3,
-          max_tokens: 2000
+          max_tokens: this.settings.maxTokens || 5000
         })
       });
 

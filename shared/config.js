@@ -51,7 +51,8 @@ const DEFAULT_SETTINGS = {
     likelyAi: 0.7,
     ambiguous: 0.5,
     likelyHuman: 0.2
-  }
+  },
+  maxTokens: 5000
 };
 
 // Expose as global for all contexts

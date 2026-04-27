@@ -64,6 +64,7 @@ class PopupManager {
       resetOutputFormat: document.getElementById('resetOutputFormat'),
       temperature: document.getElementById('temperature'),
       temperatureValue: document.getElementById('temperatureValue'),
+      maxTokens: document.getElementById('maxTokens'),
 
       minTextLength: document.getElementById('minTextLength'),
       enableMinLength: document.getElementById('enableMinLength'),
@@ -146,6 +147,8 @@ class PopupManager {
     }
     this.elements.temperature.value = this.settings.temperature * 100;
     this.elements.temperatureValue.textContent = this.settings.temperature.toFixed(1);
+
+    this.elements.maxTokens.value = this.settings.maxTokens || 5000;
 
     this.elements.enableMinLength.checked = this.settings.enableMinLength;
     this.elements.minTextLength.value = this.settings.minTextLength;
@@ -503,6 +506,21 @@ class PopupManager {
       this.elements.temperatureValue.textContent = floatVal.toFixed(1);
       this.settings.temperature = floatVal;
       debouncedSave();
+    });
+
+    this.elements.maxTokens.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      if (!isNaN(val)) {
+        this.settings.maxTokens = Math.max(100, Math.min(128000, val));
+        debouncedSave();
+      }
+    });
+
+    this.elements.maxTokens.addEventListener('blur', (e) => {
+      const val = parseInt(e.target.value) || 5000;
+      this.settings.maxTokens = Math.max(100, Math.min(128000, val));
+      e.target.value = this.settings.maxTokens;
+      this.saveSettings();
     });
 
 
